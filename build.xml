@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Freenet dependencies" default="all" basedir=".">
+
+	<!-- =================================================================== -->
+	<!-- Global properties                                                   -->
+	<!-- =================================================================== -->
+
+	<!-- user overrides (properties are immutable, so set overrides first) -->
+	<property file="override.properties" />
+	<property file="build.properties" />
+	<property file="source.properties" />
+	<condition property="java.class.dirs" value="${java.class.dirs.user}" else="${java.home}/lib">
+		<available file="${java.class.dirs.user}" type="dir"/>
+	</condition>
+
+	<property name="pkg.base" value=".."/>
+	<property name="pkg.contrib" value="freenet-ext"/>
+	<property name="main.make" value="build"/>
+        <property name="main.src" value="src/main/java"/>
+	<property name="main.dst" value="dist"/>
+
+	<property name="tmp" value="tmp"/>
+	<property name="lib" value="lib"/>
+
+	<property name="version.src" value="freenet/node/ExtVersion.java" />
+	<property name="version.make" value="freenet/node/ExtVersion.class" />
+
+	<!-- set version string based on git-describe -->
+	<exec executable="git" failifexecutionfails="false"
+		errorProperty="git.errror" outputproperty="git.describe" resultproperty="git.result">
+		<arg value="describe" />
+		<arg value="--always" />
+		<arg value="--abbrev=4" />
+	</exec>
+	<condition property="git.revision" value="${git.describe}" else="@custom@">
+		<and>
+			<equals arg1="${git.result}" arg2="0" />
+			<isset property="git.describe" />
+		</and>
+	</condition>
+
+	<!-- =================================================================== -->
+	<!-- Miscellaneous                                                       -->
+	<!-- =================================================================== -->
+
+	<target name="dist" depends="all" description="clean-build everything"/>
+
+	<target name="all" description="build everything, incl. docs"/>
+
+	<target name="debug">
+		<echoproperties/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Standard build                                                      -->
+	<!-- =================================================================== -->
+
+	<target name="build">
+		<!-- Create the time stamp -->
+		<tstamp/>
+
+		<!-- Create the Version file with patched revision number in ${main.make} -->
+		<copy file="${main.src}/${version.src}" tofile="${main.make}/${version.src}" overwrite="true" />
+		<delete file="${main.make}/${version.make}" quiet="true" />
+		<replace file="${main.make}/${version.src}">
+			<replacefilter token="@custom@" value="${git.revision}"/>
+		</replace>
+		<echo message="Updated build version to ${git.revision} in ${main.make}/${version.src}"/>
+
+		<javac srcdir="${main.make}" destdir="${main.make}" debug="on" optimize="on" source="1.5" target="1.5">
+			<compilerarg line="${javac.args}"/>
+			<include name="${version.src}"/>
+		</javac>
+	</target>
+
+</project>
