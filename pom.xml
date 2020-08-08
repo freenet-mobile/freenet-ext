@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.freenet-mobile</groupId>
     <artifactId>freenet-ext</artifactId>
-    <version>0.60.2</version>
+    <version>0.60.3</version>
     <packaging>jar</packaging>
     <url>https://github.com/freenet-mobile/freenet-ext</url>
     <build></build>
